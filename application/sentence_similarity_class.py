@@ -1,9 +1,12 @@
 from sentence_transformers import SentenceTransformer, util
 from torch import Tensor
 
+
 class SentenceSimilarityClass:
 
-    def __init__(self, device: str="cpu", model_name: str="sentence-transformers/LaBSE"):
+    def __init__(
+        self, device: str = "cpu", model_name: str = "sentence-transformers/LaBSE"
+    ):
         """
         Initializes the SentenceSimilarity object with the specified device and model name.
 
@@ -13,7 +16,9 @@ class SentenceSimilarityClass:
         """
         self.__device = device
         self.__model_name = model_name
-        self.__similarity_model = SentenceTransformer(self.__model_name, device=self.__device)
+        self.__similarity_model = SentenceTransformer(
+            self.__model_name, device=self.__device
+        )
 
     def _create_embedding(self, sentences: list[str]) -> Tensor:
         """
@@ -28,7 +33,6 @@ class SentenceSimilarityClass:
         """
         return self.__similarity_model.encode(sentences, convert_to_tensor=True)
 
-
     def _get_similarity(self, embeddings_1: Tensor, embeddings_2: Tensor) -> Tensor:
         """
         Calculates the similarity between two embeddings using the pre-trained similarity model.
@@ -42,22 +46,33 @@ class SentenceSimilarityClass:
 
         """
         return util.pytorch_cos_sim(embeddings_1, embeddings_2)
-    
-    def get_similarity_dict(self, origin_sentence: str, sentences: list[str]) -> dict[str, float]:
+
+    def get_similarity_dict(
+        self, origin_sentence: str, sentences: list[str]
+    ) -> dict[str, float]:
         """
         Calculates the similarity between the origin sentence and a list of sentences.
-        
+
         Args:
             origin_sentence (str): The original sentence for comparison.
             sentences (list[str]): List of sentences to compare with the origin sentence.
-        
+
         Returns:
             dict[str, float]: A dictionary containing the similarity score between the origin sentence and each sentence in the list.
         """
         original_embedding = self._create_embedding(origin_sentence)
-        sentences_embeddings = [self._create_embedding(sentence) for sentence in sentences]
-        similarity_dict = {sentence: self._get_similarity(original_embedding, sentence_embedding).item() for sentence, sentence_embedding in zip(sentences, sentences_embeddings)}
-        similarity_dict[origin_sentence] =  self._get_similarity(original_embedding, original_embedding).item()
+        sentences_embeddings = [
+            self._create_embedding(sentence) for sentence in sentences
+        ]
+        similarity_dict = {
+            sentence: self._get_similarity(
+                original_embedding, sentence_embedding
+            ).item()
+            for sentence, sentence_embedding in zip(sentences, sentences_embeddings)
+        }
+        similarity_dict[origin_sentence] = self._get_similarity(
+            original_embedding, original_embedding
+        ).item()
         return similarity_dict
 
     def get_similarity_matrix(self, sentences: list[str]) -> Tensor:
@@ -78,18 +93,17 @@ if __name__ == "__main__":
     ssc = SentenceSimilarityClass()
     origin_sentence = "Не включилось РУ6"
     sentences = [
-    'Не включилось РУ6',
-    'РУ6 не включилось',
-    'не включилось шестое реле управления',
-    'Реле РУ6 срабатывает, но не включается реле времени РВ1, РВ2',
-    'При нажатии кнопки "Пуск дизеля" (все нужные автоматы включены) КМН не включается.',
-    'При нажатии кнопки "Пуск дизеля" контактор КМН включается, но маслопрокачивающий насос не работает',
-    'При пуске прокачка масла есть (60-90 сек), но после отключения КМН пусковые контакторы не включаются',
-    'При нажатии кнопки "ПД" включаются пусковые контакторы без предварительной прокачки масла'
+        "Не включилось РУ6",
+        "РУ6 не включилось",
+        "не включилось шестое реле управления",
+        "Реле РУ6 срабатывает, но не включается реле времени РВ1, РВ2",
+        'При нажатии кнопки "Пуск дизеля" (все нужные автоматы включены) КМН не включается.',
+        'При нажатии кнопки "Пуск дизеля" контактор КМН включается, но маслопрокачивающий насос не работает',
+        "При пуске прокачка масла есть (60-90 сек), но после отключения КМН пусковые контакторы не включаются",
+        'При нажатии кнопки "ПД" включаются пусковые контакторы без предварительной прокачки масла',
     ]
     semilarity_dict = ssc.get_similarity_dict(origin_sentence, sentences)
     print(semilarity_dict)
 
     semilatiry_matrix = ssc.get_similarity_matrix(sentences)
     print(semilatiry_matrix)
-
