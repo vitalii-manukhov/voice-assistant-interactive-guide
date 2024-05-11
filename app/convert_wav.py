@@ -1,5 +1,6 @@
 from pydub import AudioSegment
 
+
 def get_outpath(filepath: str, format: str) -> str:
     """
     """
@@ -13,6 +14,7 @@ def get_outpath(filepath: str, format: str) -> str:
 
     return result
 
+
 def convert_to_pcm16(filepath):
     """
     example:
@@ -24,6 +26,7 @@ def convert_to_pcm16(filepath):
     audio = audio.set_sample_width(2)
     outpath = get_outpath(filepath, "pcm16")
     audio.export(outpath, format="wav")
+
 
 def convert_to_mono(filepath):
     """
@@ -37,6 +40,7 @@ def convert_to_mono(filepath):
 # for i in range(1, 14):
 #     filepath = f"data/speech_{i}.wav"
 #     convert_to_pcm16(filepath)
+
 
 for i in range(1, 14):
     filepath = f"data/speech_{i}.wav"
